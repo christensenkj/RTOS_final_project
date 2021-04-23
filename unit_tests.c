@@ -178,7 +178,7 @@ CTEST2(fifo_test2, test_process1) {
     ASSERT_EQUAL(data->btn0_fifo_rd, 1);
 }
 
-// Test the physics model
+// Test the physics model nominally for t
 CTEST_DATA(physics_test1) {
     double g;
     double M;
@@ -205,7 +205,7 @@ CTEST2(physics_test1, test_process1) {
     ASSERT_INTERVAL(10-0.01, 10+0.01, x0);
 }
 
-// Test the physics model
+// Test the physics model nominally for theta
 CTEST_DATA(physics_test2) {
     double g;
     double M;
@@ -231,4 +231,112 @@ CTEST2(physics_test2, test_process1) {
     semiImplicitEuler_time(&x0, v0, &theta0, w0, data->dt, &time, data->F, data->M, data->m , data->g, data->L, t_f);
     ASSERT_INTERVAL(3.24159-0.01, 3.24159+0.01, theta0);
     ASSERT_INTERVAL(0-0.01, 0+0.01, x0);
+}
+
+// Test the physics model with low g
+CTEST_DATA(physics_test3) {
+    double g;
+    double M;
+    double m;
+    double L;
+    double dt;
+    double F;
+};
+
+CTEST_SETUP(physics_test3) {
+    data->g = 4;
+    data->M = 0.01;
+    data->m = 10;
+    data->L = 10;
+    data->dt = 0.01;
+    data->F = 0;
+}
+
+CTEST2(physics_test3, test_process1) {
+    double x0 = 0, v0 = 0, theta0 = 0.01, w0 = 0;
+    double time;
+    semiImplicitEuler_theta(&x0, v0, &theta0, w0, data->dt, &time, data->F, data->M, data->m , data->g, data->L);
+    ASSERT_INTERVAL(2.22-0.01, 2.24+0.01, time);
+    ASSERT_INTERVAL(10-0.01, 10+0.01, x0);
+}
+
+// Test the physics model with low L
+CTEST_DATA(physics_test4) {
+    double g;
+    double M;
+    double m;
+    double L;
+    double dt;
+    double F;
+};
+
+CTEST_SETUP(physics_test4) {
+    data->g = 9.81;
+    data->M = 0.01;
+    data->m = 10;
+    data->L = 1;
+    data->dt = 0.01;
+    data->F = 0;
+}
+
+CTEST2(physics_test4, test_process1) {
+    double x0 = 0, v0 = 0, theta0 = 0.01, w0 = 0;
+    double time;
+    semiImplicitEuler_theta(&x0, v0, &theta0, w0, data->dt, &time, data->F, data->M, data->m , data->g, data->L);
+    ASSERT_INTERVAL(0.45-0.01, 0.45+0.01, time);
+    ASSERT_INTERVAL(1-0.01, 1+0.01, x0);
+}
+
+
+// Test LCD logic
+// test with 0 degree angle
+CTEST_DATA(lcd_test1) {
+    double x_pos;
+    double theta;
+    double time;
+    double len;
+};
+
+CTEST_SETUP(lcd_test1) {
+    data->x_pos = 0;
+    data->theta = 0;
+    data->time = 0;
+    data->len = 40;
+}
+
+CTEST2(lcd_test1, test_process1) {
+    int startx = 66 + data->x_pos;
+    int starty = 66;
+    int endx = (int) (startx - sin(data->theta)*data->len);
+    int endy = (int) (starty - cos(data->theta)*data->len);
+    ASSERT_EQUAL(startx, 66);
+    ASSERT_EQUAL(starty, 66);
+    ASSERT_EQUAL(endx, 66);
+    ASSERT_EQUAL(endy, 26);
+}
+
+// test with 45 degree angle
+CTEST_DATA(lcd_test2) {
+    double x_pos;
+    double theta;
+    double time;
+    double len;
+};
+
+CTEST_SETUP(lcd_test2) {
+    data->x_pos = 0;
+    data->theta = 45;
+    data->time = 0;
+    data->len = 40;
+}
+
+CTEST2(lcd_test2, test_process1) {
+    int startx = 66 + data->x_pos;
+    int starty = 66;
+    int endx = (int) (startx - sin(data->theta)*data->len);
+    int endy = (int) (starty - cos(data->theta)*data->len);
+    ASSERT_EQUAL(startx, 66);
+    ASSERT_EQUAL(starty, 66);
+    ASSERT_EQUAL(endx, 31);
+    ASSERT_EQUAL(endy, 44);
 }
